@@ -282,6 +282,77 @@ small { font-size: 0.78em; opacity: 0.85; }
   line-height: 1;
 }
 
+/* ── Parallel band (food truck) ─────────────────────────────────────────── */
+.parallel-band {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.4rem 1.05rem;
+  margin: 0 0 2rem;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      var(--terracotta) 0 18px,
+      var(--terracotta-2) 18px 36px
+    );
+  color: var(--cream);
+  border-radius: 14px;
+  border: 1px solid var(--terracotta);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.18) inset,
+    0 14px 28px -18px rgba(31, 53, 86, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+.parallel-band::before {
+  content: ""; position: absolute; inset: 4px;
+  border: 1.5px dashed rgba(244, 234, 210, 0.4);
+  border-radius: 11px;
+  pointer-events: none;
+}
+.parallel-band__icon {
+  font-size: 2rem;
+  width: 56px; height: 56px;
+  display: grid; place-items: center;
+  background: var(--cream);
+  border-radius: 50%;
+  box-shadow: 0 8px 16px -8px rgba(0,0,0,0.25);
+  border: 1.5px solid rgba(31, 53, 86, 0.2);
+}
+.parallel-band__body { z-index: 1; }
+.parallel-band__title {
+  margin: 0 0 0.2rem;
+  font-family: var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 1rem;
+  display: inline-flex; align-items: center; gap: 0.6rem;
+}
+.parallel-band__pill {
+  font-family: var(--f-display);
+  letter-spacing: 0.16em;
+  font-size: 0.66rem;
+  padding: 0.22rem 0.55rem;
+  background: var(--navy);
+  color: var(--mustard);
+  border-radius: 999px;
+}
+.parallel-band__txt {
+  margin: 0;
+  font-family: var(--f-edito);
+  font-size: 1rem;
+  line-height: 1.45;
+  color: rgba(244, 234, 210, 0.95);
+}
+.parallel-band__txt strong { color: var(--cream); }
+
+@media (max-width: 540px) {
+  .parallel-band { gap: 0.9rem; padding: 0.9rem 1rem; }
+  .parallel-band__icon { width: 48px; height: 48px; font-size: 1.6rem; }
+  .parallel-band__title { font-size: 0.92rem; }
+}
+
 /* ── Timeline ───────────────────────────────────────────────────────────── */
 .timeline {
   list-style: none; padding: 0; margin: 0;
