@@ -503,6 +503,27 @@ small { font-size: 0.78em; opacity: 0.85; }
   font-size: 0.78rem;
   color: var(--terracotta);
 }
+.card__menu {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.card__menu li {
+  font-family: var(--f-edito);
+  font-size: 1rem;
+  color: var(--navy);
+  background: var(--cream);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .card--place    { background: linear-gradient(180deg, #e9d4a8 0, var(--cream-2) 100%); }
 .card--meal     { background: linear-gradient(180deg, #f3d3b8 0, var(--cream-2) 100%); }
 .card--bring    { background: linear-gradient(180deg, #ddd9bb 0, var(--cream-2) 100%); }
