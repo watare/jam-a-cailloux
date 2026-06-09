@@ -1,38 +1,22 @@
 /**
- * align-forms.gs
+ * align-forms.gs (v2 — avec pré-remplissage soirée)
  *
- * Aligne les 2 Google Forms de la Fête de la Musique sur le nouveau modèle :
- *  - Form CONCERT (sans code) : aprèm + concert + apéro
- *  - Form ALL-IN  (avec code) : tout ce qui précède PLUS la partie soirée DJ
+ * - Form CONCERT (sans code) : titre + description alignés, questions inchangées
+ * - Form ALL-IN  (avec code) : reconstruit avec 12 questions = concert + soirée
+ *   + génère l'URL viewform pré-remplie avec la case "Soirée DJ" cochée d'office
  *
- * Marche à suivre
- * ---------------
- *   1. https://script.google.com → "Nouveau projet"
- *   2. Coller tout ce fichier
- *   3. Cmd/Ctrl+S pour sauvegarder
- *   4. Sélectionner la fonction `alignBothForms` en haut, cliquer ▶ Exécuter
- *   5. Autoriser (ton compte gmail, c'est tes forms)
- *   6. Voir le journal : Affichage → Journaux (Ctrl/Cmd+Enter)
- *
- * Sécurité
- * --------
- *  - DRY_RUN = true  → le script LISTE ce qu'il ferait, ne touche à RIEN.
- *    Mode par défaut. Lance une 1re fois en DRY_RUN, vérifie les logs, puis
- *    repasse à false pour exécuter pour de vrai.
- *  - Avant tout `deleteItem`, le script dumpe les questions existantes du form
- *    All-in dans les logs. Si quoi que ce soit foire, le contenu est récupérable
- *    depuis là.
+ * DRY_RUN = true par défaut. Lance, vérifie les logs, passe à false, relance.
  */
 
 // === RÉGLAGES ============================================================
 const DRY_RUN = true;   // ← passe à false pour exécuter pour de vrai
 
-// URLs publiques utilisées par la landing https://watare.github.io/jam-a-cailloux/
 const PUB_CONCERT = 'https://docs.google.com/forms/d/e/1FAIpQLSdOqh5eXl-ow2SegsYjygSUpzDZbPFfihfnnBCIeulAiGi61g/viewform';
 const PUB_ALLIN   = 'https://docs.google.com/forms/d/e/1FAIpQLSeVabP6H6YrMOpgJKGKN2YLLNiCk-tyzwAdfRiM0cdzSsxMLQ/viewform';
 
+const SOIREE_CHOICE_LABEL = 'Soirée DJ (dès 22h, sur invitation)';
 
-/** Entrée principale. */
+
 function alignBothForms() {
   Logger.log('=== alignBothForms (DRY_RUN=%s) ===', DRY_RUN);
 
@@ -42,26 +26,21 @@ function alignBothForms() {
   Logger.log('All-in form  ID : %s', allInId   || '(introuvable)');
   Logger.log('Concert form ID : %s', concertId || '(introuvable)');
 
-  if (!allInId)   Logger.log('⚠ All-in form introuvable — vérifie PUB_ALLIN');
-  if (!concertId) Logger.log('⚠ Concert form introuvable — vérifie PUB_CONCERT');
-
-  // Dump All-in actuel pour archive avant toute action destructive
   if (allInId) dumpFormItems_(allInId, 'AVANT (All-in)');
 
   if (!DRY_RUN) {
-    if (allInId)   buildAllInForm_(allInId);
+    if (allInId)   {
+      buildAllInForm_(allInId);
+      generatePrefilledUrl_(allInId);
+    }
     if (concertId) tweakConcertForm_(concertId);
     Logger.log('— Done (changements appliqués) —');
   } else {
-    Logger.log('— DRY_RUN : aucune modification appliquée. Passe DRY_RUN à false pour exécuter. —');
+    Logger.log('— DRY_RUN : aucune modification. Passe DRY_RUN à false pour exécuter. —');
   }
 }
 
 
-/**
- * Trouve le file id d'un Google Form via son published URL.
- * Itère sur tous les forms du compte (peut prendre quelques secondes).
- */
 function findFormIdByPublishedUrl_(pubUrl) {
   const target = normalizeUrl_(pubUrl);
   const it = DriveApp.searchFiles(
@@ -74,25 +53,21 @@ function findFormIdByPublishedUrl_(pubUrl) {
     try {
       const form = FormApp.openById(f.getId());
       if (normalizeUrl_(form.getPublishedUrl()) === target) {
-        Logger.log('  → match après %d forms scannés : %s', scanned, f.getName());
+        Logger.log('  → match après %d forms : %s', scanned, f.getName());
         return f.getId();
       }
-    } catch (e) {
-      // pas le droit d'ouvrir ce form, on saute
-    }
+    } catch (e) {}
   }
-  Logger.log('  ✗ aucun match sur %d forms scannés', scanned);
+  Logger.log('  ✗ aucun match sur %d forms', scanned);
   return null;
 }
 
 
-/** Normalise une URL pour comparaison (strip query + trailing slash). */
 function normalizeUrl_(u) {
   return (u || '').split('?')[0].replace(/\/+$/, '');
 }
 
 
-/** Dump les items existants d'un form dans les logs. */
 function dumpFormItems_(formId, label) {
   const form = FormApp.openById(formId);
   const items = form.getItems();
@@ -112,7 +87,6 @@ function dumpFormItems_(formId, label) {
 }
 
 
-/** Reconstruit le form All-in avec les 12 questions concert + soirée. */
 function buildAllInForm_(formId) {
   const form = FormApp.openById(formId);
 
@@ -124,67 +98,51 @@ function buildAllInForm_(formId) {
     '18h45 jams · food truck en parallèle dès 17h30 · soirée DJ dès 22h.'
   );
 
-  // Wipe existing items
   const items = form.getItems();
   for (let i = items.length - 1; i >= 0; i--) form.deleteItem(items[i]);
 
-  // 1. Prénom
-  form.addTextItem()
-    .setTitle('Ton prénom')
-    .setRequired(true);
+  form.addTextItem().setTitle('Ton prénom').setRequired(true);
+  form.addTextItem().setTitle('Ton nom').setRequired(true);
 
-  // 2. Nom
-  form.addTextItem()
-    .setTitle('Ton nom')
-    .setRequired(true);
-
-  // 3. Cercle
   form.addMultipleChoiceItem()
     .setTitle('Tu fais partie de quel cercle ?')
     .setChoiceValues(['Amis / groupe musique', 'Collègues RTE', 'Voisins', 'Famille'])
     .setRequired(true);
 
-  // 4. Tu viens à quoi (multi, inclut la soirée)
   form.addCheckboxItem()
     .setTitle('Tu viens à quoi ? (plusieurs choix possibles)')
     .setChoiceValues([
       'Jeux après-midi (pétanque, etc.)',
       'Scène ouverte + concert',
-      'Soirée DJ (dès 22h, sur invitation)'
+      SOIREE_CHOICE_LABEL
     ])
-    .setHelpText('La soirée DJ est sur invitation — si tu as reçu ce formulaire avec le code, tu es invité·e.')
+    .setHelpText('La soirée DJ est sur invitation — vu que tu remplis ce formulaire, tu es invité·e (la case est pré-cochée).')
     .setRequired(true);
 
-  // 5. Combien d'adultes
   form.addTextItem()
     .setTitle('Combien d\'adultes au total ?')
     .setHelpText('Toi compris·e.')
     .setRequired(true);
 
-  // 6. Combien d'enfants
   form.addTextItem()
     .setTitle('Combien d\'enfants ?')
     .setHelpText('Pour la journée (pas la soirée).')
     .setRequired(false);
 
-  // 7. Allergies / régime
   form.addTextItem()
     .setTitle('Allergie ou régime particulier ?')
     .setHelpText('À signaler au food truck si besoin.')
     .setRequired(false);
 
-  // 8. Scène ouverte 17h
   form.addMultipleChoiceItem()
     .setTitle('Tu veux proposer un morceau à la scène ouverte (17h) ?')
     .setChoiceValues(['Oui, j\'ai une idée', 'Non, je viens écouter'])
     .setRequired(false);
 
-  // 9. Si oui : quel morceau & avec qui
   form.addTextItem()
     .setTitle('Si oui : quel morceau et avec qui ?')
     .setRequired(false);
 
-  // 10. Apéro à ramener
   form.addCheckboxItem()
     .setTitle('Tu peux ramener quelque chose pour l\'apéro ?')
     .setChoiceValues([
@@ -196,14 +154,11 @@ function buildAllInForm_(formId) {
     .setHelpText('Le repas est géré par le food truck, pas besoin d\'apporter à manger.')
     .setRequired(false);
 
-  // 11. Soirée : jouer / mixer
   form.addMultipleChoiceItem()
     .setTitle('Soirée DJ : tu veux jouer ou mixer un set ? (machines, jam, DJ)')
     .setChoiceValues(['Oui, j\'ai un truc à proposer', 'Non, je profite'])
-    .setHelpText('Uniquement si tu coches la soirée DJ ci-dessus.')
     .setRequired(false);
 
-  // 12. Mot pour l'orga
   form.addParagraphTextItem()
     .setTitle('Un mot pour l\'orga ?')
     .setHelpText('Optionnel. Précisions, surprises, demandes, etc.')
@@ -213,7 +168,32 @@ function buildAllInForm_(formId) {
 }
 
 
-/** Aligne titre + description du form Concert (sans toucher aux questions). */
+/**
+ * Génère l'URL viewform pré-remplie avec la case "Soirée DJ" déjà cochée.
+ * À copier dans index.html à la place de l'URL all-in actuelle.
+ */
+function generatePrefilledUrl_(formId) {
+  const form = FormApp.openById(formId);
+  const target = form.getItems(FormApp.ItemType.CHECKBOX)
+    .find(it => /tu viens/i.test(it.getTitle()));
+  if (!target) {
+    Logger.log('⚠ Question "Tu viens à quoi" introuvable, pas d\'URL pré-remplie');
+    return null;
+  }
+  const resp = form.createResponse()
+    .withItemResponse(target.asCheckboxItem().createResponse([SOIREE_CHOICE_LABEL]));
+  const url = resp.toPrefilledUrl();
+  Logger.log('');
+  Logger.log('════════════════════════════════════════════════════════════');
+  Logger.log('  URL pré-remplie (case Soirée DJ déjà cochée) :');
+  Logger.log('  %s', url);
+  Logger.log('════════════════════════════════════════════════════════════');
+  Logger.log('  → Donne cette URL à Claude pour qu\'il mette à jour l\'iframe');
+  Logger.log('    de l\'option soirée dans index.html.');
+  return url;
+}
+
+
 function tweakConcertForm_(formId) {
   const form = FormApp.openById(formId);
 
