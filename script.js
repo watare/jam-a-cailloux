@@ -1,60 +1,78 @@
 (() => {
   "use strict";
 
-  // ── Gate code ─────────────────────────────────────────────────────────────
-  // Frontend-only gate: this code-source is public on GitHub Pages. The aim is
-  // "private invitations seulement", pas un secret cryptographique.
+  // ── Config ────────────────────────────────────────────────────────────────
+  // Frontend-only gate. Code is in clear since GitHub Pages is public — security
+  // by obscurity is enough for a private invite list.
   const CODE = "SFDLM26";
-  const STORE_KEY = "jamacailloux:gate";
+  const STORE_GATE  = "jamacailloux:gate";
+  const STORE_PICK  = "jamacailloux:pick";  // 'concert' | 'soiree'
 
-  const $ = (s, c = document) => c.querySelector(s);
+  const $  = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => [...c.querySelectorAll(s)];
 
-  // ── Tabs (concert / soirée) ──────────────────────────────────────────────
-  const tabs = $$(".rsvp__tab");
-  const panels = $$(".rsvp__panel");
-  const showTab = (key) => {
-    tabs.forEach(t => {
-      const active = t.dataset.tab === key;
-      t.classList.toggle("is-active", active);
-      t.setAttribute("aria-selected", active ? "true" : "false");
-    });
-    panels.forEach(p => {
-      const active = p.dataset.panel === key;
-      p.classList.toggle("is-visible", active);
-      p.setAttribute("aria-hidden", active ? "false" : "true");
-    });
-  };
-  tabs.forEach(t => t.addEventListener("click", () => showTab(t.dataset.tab)));
+  // ── RSVP chooser → flow ──────────────────────────────────────────────────
+  const chooser  = $('[data-step="chooser"]');
+  const concert  = $('[data-step="concert"]');
+  const soiree   = $('[data-step="soiree"]');
 
-  // ── Gate state ────────────────────────────────────────────────────────────
-  const gate = $("[data-gate]");
-  const unlocked = $("[data-gate-unlocked]");
-  const form = $("[data-gate-form]");
-  const input = form?.querySelector("input");
-  const error = $("[data-gate-error]");
-  const relock = $("[data-gate-relock]");
-
-  const setUnlocked = (state) => {
-    if (!gate || !unlocked) return;
-    if (state) {
-      gate.hidden = true;
-      unlocked.hidden = false;
-      try { localStorage.setItem(STORE_KEY, "ok"); } catch (e) {}
+  const showStep = (key) => {
+    if (!chooser || !concert || !soiree) return;
+    chooser.hidden = (key !== "chooser");
+    concert.hidden = (key !== "concert");
+    soiree.hidden  = (key !== "soiree");
+    if (key === "chooser") {
+      try { localStorage.removeItem(STORE_PICK); } catch (e) {}
     } else {
-      gate.hidden = false;
-      unlocked.hidden = true;
-      try { localStorage.removeItem(STORE_KEY); } catch (e) {}
-      if (input) { input.value = ""; input.focus({ preventScroll: true }); }
+      try { localStorage.setItem(STORE_PICK, key); } catch (e) {}
     }
   };
 
-  // Restore previous unlock
+  $$("[data-pick]").forEach(b =>
+    b.addEventListener("click", () => showStep(b.dataset.pick))
+  );
+  $$("[data-back]").forEach(b =>
+    b.addEventListener("click", (e) => { e.preventDefault(); showStep("chooser"); })
+  );
+
+  // Restore previous pick
   try {
-    if (localStorage.getItem(STORE_KEY) === "ok") setUnlocked(true);
+    const prev = localStorage.getItem(STORE_PICK);
+    if (prev === "concert" || prev === "soiree") showStep(prev);
   } catch (e) {}
 
-  // Submit
+  // Deep link from timeline: #rsvp-soiree forces the VIP flow
+  const handleHash = () => {
+    if (location.hash === "#rsvp-soiree") showStep("soiree");
+    else if (location.hash === "#rsvp-concert") showStep("concert");
+  };
+  window.addEventListener("hashchange", handleHash);
+  handleHash();
+
+  // ── Gate (inside soiree flow) ─────────────────────────────────────────────
+  const gate     = $("[data-gate]");
+  const unlocked = $("[data-gate-unlocked]");
+  const form     = $("[data-gate-form]");
+  const input    = form?.querySelector("input");
+  const error    = $("[data-gate-error]");
+  const relock   = $("[data-gate-relock]");
+
+  const setUnlocked = (state) => {
+    if (!gate || !unlocked) return;
+    gate.hidden     = !!state;
+    unlocked.hidden = !state;
+    try {
+      if (state) localStorage.setItem(STORE_GATE, "ok");
+      else localStorage.removeItem(STORE_GATE);
+    } catch (e) {}
+    if (!state && input) { input.value = ""; input.focus({ preventScroll: true }); }
+  };
+
+  // Restore unlock state
+  try {
+    if (localStorage.getItem(STORE_GATE) === "ok") setUnlocked(true);
+  } catch (e) {}
+
   form?.addEventListener("submit", (e) => {
     e.preventDefault();
     if (!input) return;
@@ -63,29 +81,19 @@
       error.hidden = true;
       gate.classList.remove("shake");
       setUnlocked(true);
-      // Scroll soirée tab into view
-      showTab("soiree");
-      setTimeout(() => unlocked.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      setTimeout(
+        () => unlocked.scrollIntoView({ behavior: "smooth", block: "start" }),
+        100
+      );
     } else {
       error.hidden = false;
       gate.classList.remove("shake");
-      // Restart animation
-      void gate.offsetWidth;
+      void gate.offsetWidth; // restart animation
       gate.classList.add("shake");
       input.select();
     }
   });
 
-  // Relock
   relock?.addEventListener("click", () => setUnlocked(false));
-
-  // Hide error as soon as user types again
-  input?.addEventListener("input", () => { if (!error.hidden) error.hidden = true; });
-
-  // ── Deep link: #soiree ouvre l'onglet ─────────────────────────────────────
-  const handleHash = () => {
-    if (location.hash === "#soiree") showTab("soiree");
-  };
-  window.addEventListener("hashchange", handleHash);
-  handleHash();
+  input?.addEventListener("input", () => { if (error && !error.hidden) error.hidden = true; });
 })();
