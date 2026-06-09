@@ -154,6 +154,11 @@ function buildAllInForm_(formId) {
     .setHelpText('Le repas est géré par le food truck, pas besoin d\'apporter à manger.')
     .setRequired(false);
 
+  form.addTextItem()
+    .setTitle('Combien de personnes mangeront au food truck ?')
+    .setHelpText('Mettez 0 si personne ne mange sur place. C\'est une estimation pour que le camion prévoie les quantités, pas un engagement. Menu : burger+frites 11€, burger 10€, frites 2€, végé sur demande.')
+    .setRequired(false);
+
   form.addMultipleChoiceItem()
     .setTitle('Soirée DJ : tu veux jouer ou mixer un set ? (machines, jam, DJ)')
     .setChoiceValues(['Oui, j\'ai un truc à proposer', 'Non, je profite'])
@@ -205,5 +210,36 @@ function tweakConcertForm_(formId) {
     '18h45 jams · food truck en parallèle dès 17h30.'
   );
 
+  addFoodCountQ_(formId);
+
   Logger.log('✓ Concert form metadata updated : %s', form.getPublishedUrl());
+}
+
+
+/** Ajoute la question 'Combien de repas food truck' à un form, si pas déjà présente. */
+function addFoodCountQ_(formId) {
+  const form = FormApp.openById(formId);
+  const exists = form.getItems().some(function(it) {
+    return /food truck|manger.+sur place|repas.+camion/i.test(it.getTitle());
+  });
+  if (exists) {
+    Logger.log('  • Question food truck déjà présente dans "%s", skip', form.getTitle());
+    return;
+  }
+  form.addTextItem()
+    .setTitle('Combien de personnes mangeront au food truck ?')
+    .setHelpText('Mettez 0 si personne ne mange sur place. C\'est une estimation pour que le camion prévoie les quantités, pas un engagement. Menu : burger+frites 11€, burger 10€, frites 2€, végé sur demande.')
+    .setRequired(false);
+  Logger.log('  ✓ Question food truck ajoutée dans "%s"', form.getTitle());
+}
+
+
+/** Entrée idempotente : ajoute la question food truck aux 2 forms si manquante. */
+function addFoodTruckCountQuestion() {
+  Logger.log('=== addFoodTruckCountQuestion ===');
+  const allInId   = findFormIdByPublishedUrl_(PUB_ALLIN);
+  const concertId = findFormIdByPublishedUrl_(PUB_CONCERT);
+  if (allInId)   addFoodCountQ_(allInId);
+  if (concertId) addFoodCountQ_(concertId);
+  Logger.log('— Done —');
 }
