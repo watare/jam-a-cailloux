@@ -506,22 +506,40 @@ small { font-size: 0.78em; opacity: 0.85; }
 .card__menu {
   list-style: none;
   padding: 0;
-  margin: 0.4rem 0 0.6rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.card__menu li {
-  font-family: var(--f-edito);
-  font-size: 1rem;
-  color: var(--navy);
+  margin: 0.6rem 0 0.4rem;
+  display: grid;
+  gap: 0.45rem;
   background: var(--cream);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
+  border-radius: 14px;
+  padding: 0.95rem 1.1rem;
+}
+.card__menu li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  font-family: var(--f-edito);
+  font-size: 1.02rem;
+  color: var(--ink);
+  border-bottom: 1px dotted var(--line-strong);
+  padding-bottom: 0.4rem;
+}
+.card__menu li:last-child { border-bottom: 0; padding-bottom: 0; }
+.card__menu-label {
+  flex: 1;
+}
+.card__menu-price {
+  font-family: var(--f-display);
+  letter-spacing: 0.06em;
+  color: var(--terracotta);
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+.card__menu-note {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0.3rem 0 0;
 }
 
 .card--place    { background: linear-gradient(180deg, #e9d4a8 0, var(--cream-2) 100%); }
