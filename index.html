@@ -174,98 +174,62 @@
   <div class="section__head">
     <span class="ribbon ribbon--alt">RSVP</span>
     <h2 class="h2">Dites-nous si vous venez</h2>
-    <p class="section__lede"><strong>Important</strong> : si Aurélien vous a envoyé un <strong>code soirée</strong>, choisissez la deuxième option ci-dessous — sinon vous oublierez de vous inscrire à la soirée DJ.</p>
+    <p class="section__lede">Une seule question d'abord : avez-vous reçu un <strong>code soirée</strong> ? On vous redirigera vers le bon formulaire — vous n'en remplissez qu'un.</p>
   </div>
 
   <div class="rsvp">
 
-    <!-- STEP 1 : chooser -->
-    <div class="chooser" data-step="chooser">
-      <button class="chooser__card" data-pick="concert">
-        <span class="chooser__num">1</span>
-        <span class="chooser__body">
-          <span class="chooser__title">L'aprèm &amp; le concert</span>
-          <span class="chooser__sub">Pétanque, scène ouverte, set du groupe, jams croisées, food truck. Jusqu'à 22h.</span>
-          <span class="chooser__tag">Sans code · ouvert à tou·tes</span>
-        </span>
-        <span class="chooser__arrow" aria-hidden="true">→</span>
-      </button>
+    <!-- ENTRY : code question -->
+    <div class="entry" data-step="entry">
+      <div class="entry__head">
+        <span class="entry__key" aria-hidden="true">🔑</span>
+        <h3>Avez-vous un code soirée ?</h3>
+      </div>
+      <p class="entry__sub">Le code est envoyé personnellement par Aurélien aux invités de la soirée DJ. Pas reçu de code ? C'est normal — la soirée est privée. Cliquez sur "Continuer sans code" pour le formulaire ouvert à tou·tes.</p>
 
-      <button class="chooser__card chooser__card--vip" data-pick="soiree">
-        <span class="chooser__num">2</span>
-        <span class="chooser__body">
-          <span class="chooser__title">Tout + la soirée DJ <span class="chooser__lock" aria-hidden="true">🔑</span></span>
-          <span class="chooser__sub">Tout ce qui précède <em>plus</em> la soirée intérieure jusqu'à minuit. Sur invitation seulement.</span>
-          <span class="chooser__tag chooser__tag--vip">Code requis — vous l'avez reçu d'Aurélien</span>
-        </span>
-        <span class="chooser__arrow" aria-hidden="true">→</span>
-      </button>
+      <form class="entry__form" data-gate-form novalidate>
+        <label for="code" class="visually-hidden">Code d'accès</label>
+        <input type="text" id="code" name="code" placeholder="VOTRE CODE"
+               autocapitalize="characters" autocomplete="off" spellcheck="false"
+               inputmode="text" maxlength="16" />
+        <button type="submit" class="btn btn--primary">Valider mon code</button>
+      </form>
+      <p class="entry__error" data-gate-error hidden>Code incorrect. Vérifiez le message reçu, ou demandez-le à Aurélien.</p>
 
-      <p class="chooser__hint">Pas sûr·e ? Si vous ne savez pas ce qu'est le code, c'est que vous n'en avez pas — option 1 pour vous.</p>
+      <div class="entry__sep" aria-hidden="true"><span>ou</span></div>
+
+      <button class="btn btn--ghost entry__nocode" data-pick="concert" type="button">
+        Continuer sans code →
+      </button>
     </div>
 
-    <!-- STEP 2A : concert form -->
+    <!-- VIEW : concert form (no code path) -->
     <div class="rsvp-flow" data-step="concert" hidden>
       <div class="rsvp-flow__head">
-        <button class="rsvp-flow__back" data-back type="button">← Changer mon choix</button>
+        <button class="rsvp-flow__back" data-back type="button">← Modifier ma réponse</button>
         <div class="rsvp-flow__title">
-          <span class="rsvp-flow__badge">Option 1</span>
+          <span class="rsvp-flow__badge">Sans code</span>
           <h3>L'aprèm &amp; le concert</h3>
         </div>
       </div>
-
-      <div class="rsvp-warning" role="note">
-        <span aria-hidden="true">🔑</span>
-        <p><strong>Vous avez un code soirée ?</strong> Vous êtes au mauvais endroit, ce formulaire n'a pas la partie soirée. <button class="link-btn" data-back type="button">Revenir au choix →</button></p>
-      </div>
-
+      <p class="rsvp-flow__sub">Pétanque, scène ouverte, set Judyson, jams, food truck. Jusqu'à 22h.</p>
       <div class="iframe-wrap">
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdOqh5eXl-ow2SegsYjygSUpzDZbPFfihfnnBCIeulAiGi61g/viewform?embedded=true" loading="lazy" title="Formulaire concert (option 1)">Chargement…</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdOqh5eXl-ow2SegsYjygSUpzDZbPFfihfnnBCIeulAiGi61g/viewform?embedded=true" loading="lazy" title="Formulaire concert">Chargement…</iframe>
       </div>
     </div>
 
-    <!-- STEP 2B : soirée gate + form -->
+    <!-- VIEW : all-in form (code path, unlocked) -->
     <div class="rsvp-flow" data-step="soiree" hidden>
       <div class="rsvp-flow__head">
-        <button class="rsvp-flow__back" data-back type="button">← Changer mon choix</button>
+        <button class="rsvp-flow__back" data-back type="button">← Modifier ma réponse</button>
         <div class="rsvp-flow__title">
-          <span class="rsvp-flow__badge rsvp-flow__badge--vip">Option 2</span>
+          <span class="rsvp-flow__badge rsvp-flow__badge--vip">Code OK ✓</span>
           <h3>Tout + la soirée DJ</h3>
         </div>
       </div>
-
-      <div class="gate" data-gate>
-        <div class="gate__lock" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="11" width="16" height="10" rx="2"/>
-            <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
-          </svg>
-        </div>
-        <h3>Saisissez votre code soirée</h3>
-        <p>Le formulaire complet (aprèm + concert + repas + soirée DJ) se débloque avec le code que vous avez reçu.</p>
-        <form class="gate__form" data-gate-form novalidate>
-          <label for="code" class="visually-hidden">Code d'accès</label>
-          <input type="text" id="code" name="code" placeholder="Votre code"
-                 autocapitalize="characters" autocomplete="off" spellcheck="false"
-                 inputmode="text" maxlength="16" />
-          <button type="submit" class="btn btn--primary">Déverrouiller</button>
-        </form>
-        <p class="gate__error" data-gate-error hidden>Code incorrect. Re-essayez, ou demandez-le à Aurélien.</p>
-        <p class="gate__hint">Pas de code ? <button class="link-btn link-btn--light" data-back type="button">Retour au choix</button> et prenez l'option 1.</p>
-      </div>
-
-      <div class="gate__unlocked" data-gate-unlocked hidden>
-        <div class="gate__welcome">
-          <span class="gate__check" aria-hidden="true">✓</span>
-          <div>
-            <h3>Accès soirée débloqué</h3>
-            <p>Le formulaire ci-dessous couvre <strong>tout</strong> : aprèm + concert + repas + soirée DJ.</p>
-          </div>
-          <button class="btn btn--ghost btn--small" data-gate-relock>Verrouiller</button>
-        </div>
-        <div class="iframe-wrap">
-          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeVabP6H6YrMOpgJKGKN2YLLNiCk-tyzwAdfRiM0cdzSsxMLQ/viewform?embedded=true" loading="lazy" title="Formulaire complet (option 2)">Chargement…</iframe>
-        </div>
+      <p class="rsvp-flow__sub">Aprèm + concert + repas + soirée intérieure jusqu'à minuit. <strong>Ce formulaire couvre tout</strong>, vous n'avez rien d'autre à remplir.</p>
+      <div class="iframe-wrap">
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeVabP6H6YrMOpgJKGKN2YLLNiCk-tyzwAdfRiM0cdzSsxMLQ/viewform?embedded=true" loading="lazy" title="Formulaire complet (avec soirée)">Chargement…</iframe>
       </div>
     </div>
 
