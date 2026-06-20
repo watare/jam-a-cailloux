@@ -4,3 +4,5 @@ node_modules/
 .vscode/
 .idea/
 *.log
+server/data.json
+server/data.json.tmp

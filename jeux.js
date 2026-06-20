@@ -2,8 +2,9 @@
   "use strict";
 
   // ── Config ────────────────────────────────────────────────────────────────
-  // Colle ici l'URL « /exec » du Web App Apps Script (voir tournoi-webapp.gs).
-  const API_URL = "__PASTE_WEBAPP_URL__";
+  // Backend du tournoi (Node sur le VPS, derrière nginx HTTPS). Voir server/server.js.
+  // Contrat identique au .gs : GET avec ?action=… + JSONP via ?callback=…
+  const API_URL = "https://cailloux.padaw.ovh/";
 
   const GAMES = [
     { key: "petanque",   label: "Pétanque",   icon: "🟤" },
