@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Tournoi des jeux · Jam à Cailloux</title>
+<meta name="description" content="Inscris ton équipe et suis le classement live des jeux de la Jam à Cailloux : pétanque, Mölkky, fléchettes, palet breton. Le leader repart avec un cadeau." />
+<meta name="theme-color" content="#1f3556" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Anton&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,800&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__dot"></span>
+    <span class="topbar__txt">Jam · Cailloux · MMXXVI</span>
+  </div>
+  <nav class="topbar__nav" aria-label="navigation">
+    <a href="index.html#programme">Programme</a>
+    <a href="index.html#infos">Infos</a>
+    <a href="index.html#rsvp">Répondre</a>
+    <a href="jeux.html" aria-current="page">Tournoi</a>
+  </nav>
+</header>
+
+<section class="section section--tournoi">
+  <div class="section__head">
+    <span class="ribbon ribbon--alt">Tournoi</span>
+    <h2 class="h2">Le tournoi des jeux</h2>
+    <p class="section__lede">
+      Quatre jeux, tout l'après-midi&nbsp;: <strong>pétanque</strong>, <strong>Mölkky</strong>,
+      <strong>fléchettes</strong> et <strong>palet breton</strong>. Inscris ton équipe,
+      note tes parties au fil de l'eau, et regarde le classement grimper.
+      <strong>Le leader du classement général repart avec un cadeau&nbsp;🎁.</strong>
+    </p>
+  </div>
+
+  <aside class="parallel-band parallel-band--sun" aria-label="comment ça marche">
+    <div class="parallel-band__icon" aria-hidden="true">🏆</div>
+    <div class="parallel-band__body">
+      <p class="parallel-band__title">Comment ça marche <span class="parallel-band__pill">3 étapes</span></p>
+      <p class="parallel-band__txt"><strong>1.</strong> Crée ton équipe · <strong>2.</strong> Après chaque partie, note gagné/perdu&nbsp;+ ton score · <strong>3.</strong> Le classement se met à jour pour tout le monde.</p>
+    </div>
+  </aside>
+
+  <!-- Bandeau config (visible seulement si l'URL du backend n'est pas réglée) -->
+  <div class="t-banner t-banner--warn" data-setup-banner hidden>
+    <strong>Backend pas encore branché.</strong>
+    L'organisateur doit déployer <code>scripts/tournoi-webapp.gs</code> et coller l'URL dans <code>jeux.js</code>.
+  </div>
+
+  <!-- Bandeau d'erreur réseau -->
+  <div class="t-banner t-banner--err" data-error-banner hidden>
+    <span data-error-text>Connexion au tableau des scores impossible.</span>
+    <button type="button" class="btn btn--ghost btn--small" data-retry>Réessayer</button>
+  </div>
+
+  <div class="t-layout">
+
+    <!-- Colonne formulaires -->
+    <div class="t-forms">
+
+      <form class="t-card t-card--form" data-register-form novalidate>
+        <h3 class="t-card__title">① Crée ton équipe</h3>
+        <label class="t-field">
+          <span class="t-field__label">Nom de l'équipe</span>
+          <input type="text" name="name" maxlength="60" required placeholder="Les Boulistes du dimanche" autocomplete="off" />
+        </label>
+        <label class="t-field">
+          <span class="t-field__label">Joueur·euses <small>(optionnel)</small></span>
+          <input type="text" name="players" maxlength="200" placeholder="Aurélien, Mathieu…" autocomplete="off" />
+        </label>
+        <button type="submit" class="btn btn--primary">Créer mon équipe</button>
+        <p class="t-form__msg" data-register-msg role="status" hidden></p>
+      </form>
+
+      <form class="t-card t-card--form" data-match-form novalidate>
+        <h3 class="t-card__title">② Note une partie</h3>
+        <label class="t-field">
+          <span class="t-field__label">Ton équipe</span>
+          <select name="teamId" data-team-select required>
+            <option value="" disabled selected>— choisis ton équipe —</option>
+          </select>
+        </label>
+        <label class="t-field">
+          <span class="t-field__label">Le jeu</span>
+          <select name="game" data-game-select required>
+            <option value="" disabled selected>— choisis le jeu —</option>
+          </select>
+        </label>
+        <fieldset class="t-field t-field--seg">
+          <legend class="t-field__label">Résultat</legend>
+          <div class="seg" role="radiogroup" aria-label="Résultat">
+            <label class="seg__opt seg__opt--win">
+              <input type="radio" name="result" value="win" required />
+              <span>Gagné&nbsp;✓</span>
+            </label>
+            <label class="seg__opt seg__opt--lose">
+              <input type="radio" name="result" value="lose" />
+              <span>Perdu</span>
+            </label>
+          </div>
+        </fieldset>
+        <div class="t-field-row">
+          <label class="t-field">
+            <span class="t-field__label">Ton score</span>
+            <input type="number" name="score" inputmode="numeric" min="0" max="9999" required placeholder="13" />
+          </label>
+          <label class="t-field">
+            <span class="t-field__label">Adversaire <small>(optionnel)</small></span>
+            <input type="text" name="opponent" maxlength="60" placeholder="Les Cailloux" autocomplete="off" />
+          </label>
+        </div>
+        <button type="submit" class="btn btn--primary">Enregistrer la partie</button>
+        <p class="t-form__msg" data-match-msg role="status" hidden></p>
+      </form>
+
+    </div>
+
+    <!-- Colonne classements -->
+    <div class="t-results">
+
+      <div class="t-card t-card--board">
+        <div class="t-card__head">
+          <h3 class="t-card__title">🎁 Classement général</h3>
+          <div class="t-card__head-right">
+            <span class="t-stamp" data-stamp aria-live="polite"></span>
+            <button type="button" class="btn btn--ghost btn--small" data-refresh>Rafraîchir</button>
+          </div>
+        </div>
+        <p class="t-card__hint">Classé par victoires, toutes catégories confondues. Le n°1 gagne le cadeau.</p>
+        <div data-global-board>
+          <p class="t-empty">Chargement…</p>
+        </div>
+      </div>
+
+      <div class="t-card">
+        <h3 class="t-card__title">Podiums par jeu</h3>
+        <div class="podiums" data-podiums></div>
+      </div>
+
+      <div class="t-card">
+        <h3 class="t-card__title">Dernières parties</h3>
+        <div class="feed" data-feed>
+          <p class="t-empty">Aucune partie pour l'instant.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<footer class="footer">
+  <p class="footer__title">Jam à Cailloux</p>
+  <p class="footer__line">Samedi 20 juin 2026 · 237 chemin des Chaumes · Cailloux-sur-Fontaines</p>
+  <p class="footer__small">fait avec amour et un peu de code · <a href="index.html">← retour à l'accueil</a></p>
+</footer>
+
+<script src="jeux.js"></script>
+</body>
+</html>
