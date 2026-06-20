@@ -311,6 +311,20 @@ small { font-size: 0.78em; opacity: 0.85; }
   border-radius: 11px;
   pointer-events: none;
 }
+/* Sunny variant (pétanque / jeux) */
+.parallel-band--sun {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      var(--mustard) 0 18px,
+      var(--mustard-soft) 18px 36px
+    );
+  border-color: var(--mustard);
+  color: var(--ink);
+}
+.parallel-band--sun::before { border-color: rgba(44, 36, 24, 0.3); }
+.parallel-band--sun .parallel-band__txt { color: var(--ink-soft); }
+.parallel-band--sun .parallel-band__txt strong { color: var(--ink); }
 .parallel-band__icon {
   font-size: 2rem;
   width: 56px; height: 56px;

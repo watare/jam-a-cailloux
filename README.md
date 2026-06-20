@@ -17,7 +17,7 @@ assets/         l'affiche + visuels
 ## Structure
 
 - **Hero** : affiche + date + tagline.
-- **Programme** : timeline 14h → minuit.
+- **Programme** : timeline 16h → minuit.
 - **Infos pratiques** : adresse, ce qu'on ramène, repas, voisinage.
 - **RSVP** : deux onglets.
   - *Concert* : formulaire public (embed Google Form).
