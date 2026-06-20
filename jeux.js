@@ -376,6 +376,7 @@
       render(); // affiche les états vides
       return;
     }
+    if (setupBanner) setupBanner.hidden = true; // défensif : backend branché → jamais de bandeau
     load();
     pollTimer = setInterval(load, POLL_MS);
     // Pause le polling quand l'onglet est caché (économie batterie en soirée).
